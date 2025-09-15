@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Wedding light theme base */
+html, body {
+  background: radial-gradient(80% 50% at 50% 0%, #fff1f2 0%, #ffffff 60%) !important;
+  color: #0f172a; /* slate-900 */
+}
+
+/* Floating petals — super light */
+.petal {
+  position: fixed;
+  top: -40px;
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(10px 10px at 50% 50%, #fecdd3 40%, #f472b6 41% 60%, transparent 61%);
+  border-radius: 50%;
+  filter: blur(.2px);
+  opacity: .45;
+  animation: fall 12s linear infinite;
+  pointer-events: none;
+}
+.petal-1 { left: 15%; animation-delay: 0s; }
+.petal-2 { left: 55%; animation-delay: 3s; }
+.petal-3 { left: 80%; animation-delay: 6s; }
+
+@keyframes fall {
+  0%   { transform: translateY(0) translateX(0) rotate(0deg);   opacity:.35; }
+  50%  { transform: translateY(50vh) translateX(-12px) rotate(120deg); opacity:.55; }
+  100% { transform: translateY(100vh) translateX(8px) rotate(260deg);  opacity:.35; }
+}
+
+@keyframes sway {
+  0%, 100% { transform: translate(80px,30px) rotate(0deg); }
+  50%      { transform: translate(80px,30px) rotate(2.2deg); }
+}
+
+/* Flower overlay sizing (mobile-first) */
+:root{
+  --flower-top-h: 56px;      /* height of top garland on phones */
+  --flower-bottom-h: 96px;   /* height of bottom meadow on phones */
+}
+
+/* scale up on larger screens */
+@media (min-width: 640px){
+  :root{
+    --flower-top-h: 72px;
+    --flower-bottom-h: 120px;
+  }
+}
+
+/* Respect iOS safe-area so the bottom flowers don't collide with home bar */
+.flower-bottom-safe {
+  padding-bottom: calc(var(--flower-bottom-h) + env(safe-area-inset-bottom, 0px));
+}
+
+/* Generic helper for the overlay <img> */
+.flower-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;       /* keep PNG aspect, no stretching */
+  image-rendering: auto;
+  filter: drop-shadow(0 2px 4px rgba(244,114,182,.12));
+}
+:root{
+  --flower-top-h: 56px;      /* phone */
+  --flower-bottom-h: 96px;   /* phone */
+}
+@media (min-width: 640px){
+  :root{ --flower-top-h: 72px; --flower-bottom-h: 120px; }
+}
+.flower-bottom-safe {
+  padding-bottom: calc(var(--flower-bottom-h) + env(safe-area-inset-bottom, 0px));
+}
+.flower-img { width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(244,114,182,.12)); }
+
+@keyframes sway { 0%,100%{ transform: translate(80px,30px) rotate(0deg);} 50%{ transform: translate(80px,30px) rotate(2.2deg);} }
+/* smoother iOS scroll inside the modal sheet */
+.ios-scroll { -webkit-overflow-scrolling: touch; }
+
+/* (optional) belt-and-suspenders for horizontal nudge */
+html, body { overflow-x: hidden; }
+
+/* Type helpers */
+.font-display { font-family: var(--font-display), serif; }
+.font-text    { font-family: var(--font-text), system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+
+/* Apply display font to headings automatically */
+h1,h2,h3,.heading { font-family: var(--font-display), serif; }
+
+/* Pastel brand tokens (very soft rose) */
+:root{
+  --brand-50:  #fff7fb;
+  --brand-100: #feeff5;
+  --brand-200: #fbdce7;
+  --brand-300: #f6c6d7;
+  --brand-400: #f3a6bf; /* main pastel */
+  --brand-500: #de5D83; /* accent pastel */
+  --brand-600: #d97794; /* deeper (rarely) */
+}
+
+/* Optional: tiny utility so you can write bg-brand / text-brand */
+.bg-brand-grad { background-image: linear-gradient(to bottom,var(--brand-400),var(--brand-500)); }
+.text-brand    { color: var(--brand-600); }
+.border-brand  { border-color: var(--brand-200); }
+
+/* Smoother modal scroll (we already added .ios-scroll earlier) */
+.ios-scroll { -webkit-overflow-scrolling: touch; }
+html,body{ overflow-x: hidden; }
