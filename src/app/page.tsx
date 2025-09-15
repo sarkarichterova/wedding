@@ -62,25 +62,13 @@ function LabeledAudioPlayer({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
 
-  if (!src) {
-    return (
-      <div className="rounded-2xl border border-rose-200 bg-white/70 px-3 py-3 text-xs text-rose-600">
-        {lang === 'cs'
-          ? 'Pro tento jazyk zatím není audio nahrané.'
-          : 'No audio uploaded for this language yet.'}
-      </div>
-    );
-  }
-
+  // 👇 Hooks must run on every render (even when src is null)
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
     const onLoaded = () => setDur(a.duration || 0);
     const onTime = () => !drag && setPos(a.currentTime || 0);
-    const onEnd = () => {
-      setPlaying(false);
-      setPos(0);
-    };
+    const onEnd = () => { setPlaying(false); setPos(0); };
     a.addEventListener('loadedmetadata', onLoaded);
     a.addEventListener('timeupdate', onTime);
     a.addEventListener('ended', onEnd);
@@ -91,28 +79,29 @@ function LabeledAudioPlayer({
     };
   }, [drag]);
 
+  // If no URL, show gentle message
+  if (!src) {
+    return (
+      <div className="rounded-2xl border border-rose-200 bg-white/70 px-3 py-3 text-xs text-rose-600">
+        {lang === 'cs'
+          ? 'Pro tento jazyk zatím není audio nahrané.'
+          : 'No audio uploaded for this language yet.'}
+      </div>
+    );
+  }
+
   function toggle() {
-    const a = audioRef.current;
-    if (!a) return;
-    if (playing) {
-      a.pause();
-      setPlaying(false);
-    } else {
-      a.play();
-      setPlaying(true);
-    }
+    const a = audioRef.current; if (!a) return;
+    if (playing) { a.pause(); setPlaying(false); } else { a.play(); setPlaying(true); }
   }
   function fmt(t: number) {
     if (!isFinite(t)) return '0:00';
     const m = Math.floor(t / 60);
-    const s = Math.floor(t % 60)
-      .toString()
-      .padStart(2, '0');
+    const s = Math.floor(t % 60).toString().padStart(2, '0');
     return `${m}:${s}`;
   }
   function posFromClientX(clientX: number) {
-    const el = trackRef.current;
-    if (!el || !dur) return 0;
+    const el = trackRef.current; if (!el || !dur) return 0;
     const r = el.getBoundingClientRect();
     const pct = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
     return pct * dur;
@@ -152,13 +141,9 @@ function LabeledAudioPlayer({
           aria-label={playing ? 'Pause' : 'Play'}
         >
           {playing ? (
-            <svg viewBox="0 0 24 24" className="h-5 w-5">
-              <path fill="currentColor" d="M7 5h4v14H7V5zm6 0h4v14h-4V5z" />
-            </svg>
+            <svg viewBox="0 0 24 24" className="h-5 w-5"><path fill="currentColor" d="M7 5h4v14H7V5zm6 0h4v14h-4V5z"/></svg>
           ) : (
-            <svg viewBox="0 0 24 24" className="h-5 w-5">
-              <path fill="currentColor" d="M8 5v14l11-7-11-7z" />
-            </svg>
+            <svg viewBox="0 0 24 24" className="h-5 w-5"><path fill="currentColor" d="M8 5v14l11-7-11-7z"/></svg>
           )}
         </button>
 
@@ -167,37 +152,21 @@ function LabeledAudioPlayer({
             ref={trackRef}
             className="relative h-3 rounded-full bg-white/80 border border-rose-200 cursor-pointer touch-none"
             onPointerDown={onPointerDown}
-            role="slider"
-            aria-valuemin={0}
-            aria-valuemax={dur || 0}
-            aria-valuenow={shown || 0}
+            role="slider" aria-valuemin={0} aria-valuemax={dur || 0} aria-valuenow={shown || 0}
           >
-            <div
-              className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-[#D98BA3] to-[#C45D7C]"
-              style={{ width: `${progress}%` }}
-            />
-            <div
-              className="absolute -top-1 h-5 w-5 rounded-full bg-white border border-rose-300 shadow"
-              style={{ left: `calc(${progress}% - 10px)` }}
-            />
+            <div className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-[#D98BA3] to-[#C45D7C]"
+                 style={{ width: `${progress}%` }} />
+            <div className="absolute -top-1 h-5 w-5 rounded-full bg-white border border-rose-300 shadow"
+                 style={{ left: `calc(${progress}% - 10px)` }} />
           </div>
           <div className="mt-1 flex items-center justify-between text-[11px] text-rose-600">
-            <span>
-              {fmt(shown)} / {fmt(dur)}
-            </span>
+            <span>{fmt(shown)} / {fmt(dur)}</span>
             <button
-              onClick={() => {
-                if (audioRef.current) audioRef.current.muted = !audioRef.current.muted;
-              }}
+              onClick={() => { if (audioRef.current) audioRef.current.muted = !audioRef.current.muted; }}
               aria-label="mute"
               className="hover:text-rose-700"
             >
-              <svg viewBox="0 0 24 24" className="h-4 w-4">
-                <path
-                  fill="currentColor"
-                  d="M5 10v4h3l4 4V6l-4 4H5zM16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"
-                />
-              </svg>
+              <svg viewBox="0 0 24 24" className="h-4 w-4"><path fill="currentColor" d="M5 10v4h3l4 4V6l-4 4H5zM16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"/></svg>
             </button>
           </div>
         </div>
@@ -241,7 +210,7 @@ export default function Home() {
     const { scrollY } = window;
     const html = document.documentElement;
     html.style.overflow = 'hidden';
-    (html.style as any).overscrollBehavior = 'none';
+    (html.style as HTMLElement['style']).overscrollBehavior = 'none';
     document.body.style.position = 'fixed';
     document.body.style.top = `-${scrollY}px`;
     document.body.style.left = '0';
@@ -250,7 +219,7 @@ export default function Home() {
     return () => {
       const y = document.body.style.top;
       html.style.overflow = '';
-      (html.style as any).overscrollBehavior = '';
+      (html.style as HTMLElement['style']).overscrollBehavior = '';
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.left = '';
