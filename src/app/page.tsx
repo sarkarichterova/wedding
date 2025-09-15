@@ -185,24 +185,23 @@ export default function Home() {
 
   // Single loader (typed, normalized) — no conditional hooks
   useEffect(() => {
-    (async () => {
-      try {
-        const r = await fetch('/api/guests', { cache: 'no-store' });
-        const j = (await r.json()) as ApiResponse;
+  (async () => {
+    try {
+      const r = await fetch('/api/guests', { cache: 'no-store' });
+      const j = (await r.json()) as ApiResponse;
 
-        // normalize audio shapes
-        const items: GuestItem[] = (j.items ?? []).map((it) => ({
-          ...it,
-          audioOfficial: asAudio(it.audioOfficial),
-          audioFunny: asAudio(it.audioFunny),
-        }));
+      const items: GuestItem[] = (j.items ?? []).map((it: GuestItem) => ({
+        ...it,
+        audioOfficial: asAudio(it.audioOfficial),
+        audioFunny: asAudio(it.audioFunny),
+      }));
 
-        setGuests(items);
-      } catch {
-        setGuests([]);
-      }
-    })();
-  }, []);
+      setGuests(items);
+    } catch {
+      setGuests([]);
+    }
+  })();
+}, []);
 
   // Lock background scroll when modal open
   useEffect(() => {
