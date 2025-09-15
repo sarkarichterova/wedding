@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 
-/* ---------- Types ---------- */
+/* ===================== Types ===================== */
 type Lang = 'cs' | 'en';
 
 type AudioObj = { cs?: string | null; en?: string | null };
@@ -13,37 +13,37 @@ type GuestItem = {
   relation: { cs: string; en: string };
   about?: { cs?: string; en?: string };
   photoUrl: string | null;
-  // Accept both new shape and any legacy shape; we'll normalize on load
+  // server may send objects already; we still normalize on load
   audioOfficial?: AudioObj | string | null;
   audioFunny?: AudioObj | string | null;
 };
 
-/* ---------- Helpers (safe & backward compatible) ---------- */
-/** Accepts undefined, string, or {cs?,en?} and always returns a safe object */
+type ApiResponse = { items: GuestItem[] };
+
+/* ===================== Helpers (safe, no any) ===================== */
 function asAudio(a: unknown): AudioObj {
   if (!a) return {};
-  if (typeof a === 'string') return { cs: a, en: a }; // legacy single URL -> both langs
+  if (typeof a === 'string') return { cs: a, en: a };
   if (typeof a === 'object') {
-    const o = a as any;
+    const o = a as Record<string, unknown>;
     const cs =
-      typeof o?.cs === 'string'
-        ? o.cs
-        : typeof o?.cz === 'string'
-        ? o.cz
+      typeof o['cs'] === 'string'
+        ? (o['cs'] as string)
+        : typeof o['cz'] === 'string'
+        ? (o['cz'] as string)
         : null;
-    const en = typeof o?.en === 'string' ? o.en : null;
+    const en = typeof o['en'] === 'string' ? (o['en'] as string) : null;
     return { ...(cs ? { cs } : {}), ...(en ? { en } : {}) };
   }
   return {};
 }
 
-/** Safe picker with graceful fallback to the other language (or null) */
 function pickAudio(a: unknown, lang: Lang): string | null {
   const { cs = null, en = null } = asAudio(a);
   return lang === 'cs' ? (cs ?? en) : (en ?? cs);
 }
 
-/* ---------- Stylized, scrubbable audio bubble ---------- */
+/* ===================== Player ===================== */
 function LabeledAudioPlayer({
   src,
   labelCs,
@@ -62,7 +62,6 @@ function LabeledAudioPlayer({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
 
-  // If no URL available, show a gentle message instead of a dead player
   if (!src) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-white/70 px-3 py-3 text-xs text-rose-600">
@@ -204,29 +203,31 @@ function LabeledAudioPlayer({
         </div>
       </div>
 
-      {/* crossorigin is safe & can help some CORS edges */}
       <audio ref={audioRef} src={src} preload="metadata" crossOrigin="anonymous" />
     </div>
   );
 }
 
-/* ---------- Page ---------- */
+/* ===================== Page ===================== */
 export default function Home() {
   const [guests, setGuests] = useState<GuestItem[]>([]);
   const [lang, setLang] = useState<Lang>('cs');
   const [open, setOpen] = useState<GuestItem | null>(null);
 
-  // Load & normalize (single effect)
+  // Single loader (typed, normalized) — no conditional hooks
   useEffect(() => {
     (async () => {
       try {
         const r = await fetch('/api/guests', { cache: 'no-store' });
-        const j = await r.json();
-        const items: GuestItem[] = (j.items ?? []).map((it: any) => ({
+        const j = (await r.json()) as ApiResponse;
+
+        // normalize audio shapes
+        const items: GuestItem[] = (j.items ?? []).map((it) => ({
           ...it,
-          audioOfficial: asAudio(it.audioOfficial ?? it.audioOfficialUrl ?? it.audio_official),
-          audioFunny: asAudio(it.audioFunny ?? it.audioFunnyUrl ?? it.audio_funny),
+          audioOfficial: asAudio(it.audioOfficial),
+          audioFunny: asAudio(it.audioFunny),
         }));
+
         setGuests(items);
       } catch {
         setGuests([]);
@@ -283,7 +284,7 @@ export default function Home() {
           </div>
         </header>
 
-        {/* ===== MAIN MENU: photo + name + bigger relation, 2 per row ===== */}
+        {/* Grid: photo + name + bigger relation; 2 per row on phones */}
         <section className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-5">
           {guests.length === 0 && (
             <div className="col-span-full rounded-2xl border border-rose-200/70 bg-white/70 p-8 text-center text-rose-700/80">
@@ -303,15 +304,13 @@ export default function Home() {
                   #{g.number}
                 </div>
                 {g.photoUrl && (
+                  // NOTE: Next warns to use <Image/>, but <img> is fine here; warnings don’t fail build.
                   <img src={g.photoUrl} alt={g.name} className="w-full h-full object-cover" />
                 )}
               </div>
               <div className="p-2">
-                <div className="text-[16px] font-semibold text-rose-900 leading-tight truncate">
-                  {g.name}
-                </div>
-
-                {/* Bigger relation, allow up to 3 lines */}
+                <div className="text-[16px] font-semibold text-rose-900 leading-tight truncate">{g.name}</div>
+                {/* up to 3 lines */}
                 <div
                   className="mt-1 text-[13px] text-rose-600 leading-snug"
                   style={{
@@ -329,12 +328,12 @@ export default function Home() {
         </section>
       </div>
 
-      {/* ===== DETAIL MODAL (flicker-free, full-width on phones) ===== */}
+      {/* Detail modal (flicker-free, full-width on phones) */}
       {open && (
         <div className="fixed inset-0 z-50 overscroll-none">
           {/* separate layers: dim + blur behind the sheet */}
-          <div className="fixed inset-0 bg-black/40"></div>
-          <div className="fixed inset-0 pointer-events-none backdrop-blur-sm"></div>
+          <div className="fixed inset-0 bg-black/40" />
+          <div className="fixed inset-0 pointer-events-none backdrop-blur-sm" />
 
           <div className="relative z-10 flex h-[100svh] w-full items-end sm:items-center sm:justify-center">
             <div
