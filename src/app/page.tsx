@@ -348,7 +348,17 @@ export default function Home() {
                 className="text-left rounded-[18px] border border-rose-200/70 bg-white/80 backdrop-blur overflow-hidden shadow-[0_10px_28px_rgba(244,114,182,.10)] focus:outline-none focus:ring-2 focus:ring-[#e8b9c8]"
               >
                 <div className="relative aspect-square w-full bg-[linear-gradient(180deg,#fff5f7_0%,#ffffff_60%)] overflow-hidden">
-                  <div className="absolute top-2 left-2 rounded-full bg-white/95 px-2 py-0.5 text-xs font-semibold text-rose-700 shadow">
+                 <div
+                    className="
+                      absolute top-2 left-2
+                      rounded-full bg-[#C45D7C]/95 text-white
+                      text-[20px] font-bold
+                      px-3 py-1
+                      shadow-[0_2px_8px_rgba(196,93,124,.35)]
+                      ring-2 ring-white/80
+                    "
+                    aria-label={`Guest number ${g.number}`}
+                  >
                     #{g.number}
                   </div>
                   {g.photoUrl && (
@@ -411,14 +421,26 @@ export default function Home() {
                 </button>
               </div>
 
-              <div className="aspect-square bg-rose-50 overflow-hidden">
+              <div className="aspect-square bg-rose-50 overflow-hidden relative">
                 {open.photoUrl && (
                   <img src={open.photoUrl} alt={open.name} className="w-full h-full object-cover" />
                 )}
+                <div
+                  className="
+                    absolute top-3 left-3
+                    rounded-full bg-[#C45D7C]/95 text-white
+                    text-[50px] font-bold
+                    px-3.5 py-1
+                    shadow-[0_2px_10px_rgba(196,93,124,.38)]
+                    ring-2 ring-white/80
+                  "
+                >
+                  #{open.number}
+                </div>
               </div>
 
               <div className="px-6 sm:px-7 py-4 pb-8">
-                <div className="text-xl font-semibold text-rose-900">{open.name}</div>
+                <div className="text-2xl font-semibold text-rose-900">{open.name}</div>
 
                 {/* Relation — bigger for readability */}
                 <div className="mt-0.5 text-[19px] md:text-[20px] text-rose-700">
@@ -427,7 +449,7 @@ export default function Home() {
 
                 {/* About / “heeeej” — bigger and comfy line height */}
                 {(open.about?.cs || open.about?.en) && (
-                  <p className="mt-2 text-[17px] leading-[1.55] text-rose-800">
+                  <p className="mt-2 text-[20px] leading-[1.55] text-rose-800">
                     {lang === 'cs' ? open.about?.cs : open.about?.en}
                   </p>
                 )}
