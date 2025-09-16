@@ -308,7 +308,7 @@ export default function Home() {
       {/* Fixed header (title + language) */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/85 backdrop-blur border-b border-rose-200">
         <div className="max-w-screen-sm mx-auto h-[60px] px-4 flex items-center justify-between">
-          <h1 className="font-display text-[22px] md:text-2xl text-rose-700">Zuzu &amp; Ethan</h1>
+          <h1 className="font-display text-[40px] md:text-2xl text-rose-700">Zuzu &amp; Ethan</h1>
           <div className="flex rounded-full border border-rose-200 overflow-hidden text-sm shadow bg-white/90">
             <button
               onClick={() => setLang('cs')}
