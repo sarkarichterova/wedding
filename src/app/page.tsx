@@ -359,7 +359,7 @@ export default function Home() {
                     "
                     aria-label={`Guest number ${g.number}`}
                   >
-                    #{g.number}
+                    {g.number}
                   </div>
                   {g.photoUrl && (
                     <img src={g.photoUrl} alt={g.name} className="w-full h-full object-cover" />
