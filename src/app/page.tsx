@@ -15,6 +15,7 @@ type GuestItem = {
   photoUrl: string | null;
   audioOfficial?: AudioObj | string | null;
   audioFunny?: AudioObj | string | null;
+  
 };
 
 type ApiResponse = { items: GuestItem[] };
@@ -334,7 +335,7 @@ export default function Home() {
         {loading ? (
           <LoadingHearts />
         ) : (
-          <section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <section className="grid grid-cols-2 sm:grid-cols-3 gap-4 items-start">
             {guests.length === 0 && (
               <div className="col-span-full rounded-2xl border border-rose-200/70 bg-white/70 p-8 text-center text-rose-700/80">
                 {lang === 'cs' ? 'Zatím žádní hosté.' : 'No guests yet.'}
